@@ -3,14 +3,13 @@ import os
 USERS_FILE = "data/users.csv"
 ADMINS_FILE = "data/admins.csv"
 
-USERS_FIELDS = ["id", "prenom", "nom", "login", "role"]
-ADMINS_FIELDS = [
-    "id", "prenom", "nom", "login",
-    "region", "is_superadmin", "pwd_hash", "pwd_expires_at"
-]
+# Colonnes communes aux deux CSV (alignées avec CHAMPS_USERS / CHAMPS_ADMINS du Dev2)
+USERS_FIELDS = ['id', 'login', 'password_hash', 'nom', 'prenom', 'role', 'site']
+ADMINS_FIELDS = ['id', 'login', 'password_hash', 'nom', 'prenom', 'role', 'site']
 
 
 def init_storage():
+    """Crée le dossier data/ et les fichiers CSV avec l'entête s'ils n'existent pas."""
     os.makedirs("data", exist_ok=True)
     for path, fields in ((USERS_FILE, USERS_FIELDS),
                          (ADMINS_FILE, ADMINS_FIELDS)):
@@ -20,6 +19,7 @@ def init_storage():
 
 
 def _load(path, fields):
+    """Charge un fichier CSV simple et renvoie une liste de dictionnaires."""
     if not os.path.exists(path):
         return []
 
@@ -30,7 +30,7 @@ def _load(path, fields):
         return []
 
     rows = []
-    for line in lines[1:]:      # on saute l'entête
+    for line in lines[1:]:  # on saute l'entête
         if line == "":
             continue
         values = line.split(";")
@@ -42,8 +42,9 @@ def _load(path, fields):
 
 
 def _save(path, fields, rows):
+    """Réécrit complètement un CSV à partir d'une liste de dictionnaires."""
     with open(path, "w", encoding="utf-8") as f:
-        f.write(";".join(fields) + "\n")      # entête
+        f.write(";".join(fields) + "\n")  # entête
         for d in rows:
             values = []
             for field in fields:
@@ -54,35 +55,61 @@ def _save(path, fields, rows):
 
 
 def load_users():
+    """Liste d'utilisateurs (list[dict]) depuis users.csv."""
     return _load(USERS_FILE, USERS_FIELDS)
 
 
 def save_users(users):
+    """Sauvegarde la liste d'utilisateurs dans users.csv."""
     _save(USERS_FILE, USERS_FIELDS, users)
 
 
 def load_admins():
+    """Liste d'admins (list[dict]) depuis admins.csv."""
     return _load(ADMINS_FILE, ADMINS_FIELDS)
 
 
 def save_admins(admins):
+    """Sauvegarde la liste d'admins dans admins.csv."""
     _save(ADMINS_FILE, ADMINS_FIELDS, admins)
 
 
-# - Ce module gère UNIQUEMENT le stockage en CSV, via deux fichiers :
-#     data/users.csv  (colonnes : id;prenom;nom;login;role)
-#     data/admins.csv (colonnes : id;prenom;nom;login;region;is_superadmin;pwd_hash;pwd_expires_at)
-#
-# - Fonctions à utiliser :
-#     init_storage()        -> crée data/ + les fichiers CSV avec l'entête si besoin
-#     load_users()          -> list[dict] d'utilisateurs depuis users.csv
-#     save_users(users)     -> réécrit users.csv à partir de la list[dict]
-#     load_admins()         -> list[dict] d'admins depuis admins.csv
-#     save_admins(admins)   -> réécrit admins.csv à partir de la list[dict]
-#
-# - Vous travaillez TOUJOURS sur des listes de dictionnaires en mémoire
-#   (users_list / admins_list) fournies par main.py.
-#
-# - C'est main.py qui appelle save_users(...) / save_admins(...)
-#   après vos opérations de création / modification / suppression.
+# ==== WRAPPERS POUR LE CODE DU DEV2 (users_admins.py) ====
 
+def charger_csv(fichier):
+    """Wrapper utilisé par Dev2 : renvoie list[dict] en fonction du fichier."""
+    if fichier == USERS_FILE:
+        return load_users()
+    if fichier == ADMINS_FILE:
+        return load_admins()
+    return []
+
+
+def ajouter_ligne_csv(fichier, nouvelle_personne, champs):
+    """Wrapper utilisé par Dev2 pour ajouter une ligne et sauvegarder."""
+    if fichier == USERS_FILE:
+        data = load_users()
+        data.append(nouvelle_personne)
+        save_users(data)
+    elif fichier == ADMINS_FILE:
+        data = load_admins()
+        data.append(nouvelle_personne)
+        save_admins(data)
+
+
+def sauvegarder_csv(fichier, data, champs):
+    """Wrapper utilisé par Dev2 pour réécrire un CSV complet."""
+    if fichier == USERS_FILE:
+        save_users(data)
+    elif fichier == ADMINS_FILE:
+        save_admins(data)
+
+
+# ===== NOTE RAPIDE POUR DEV1 / DEV2 =====
+# - Fichiers utilisés :
+#     data/users.csv  et data/admins.csv
+# - Colonnes :
+#     id;login;password_hash;nom;prenom;role;site
+# - Vous travaillez sur des listes de dict en mémoire,
+#   et c'est storage.py qui gère la lecture / écriture CSV.
+# ========================================
