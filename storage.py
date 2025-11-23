@@ -67,3 +67,22 @@ def load_admins():
 
 def save_admins(admins):
     _save(ADMINS_FILE, ADMINS_FIELDS, admins)
+
+
+# - Ce module gère UNIQUEMENT le stockage en CSV, via deux fichiers :
+#     data/users.csv  (colonnes : id;prenom;nom;login;role)
+#     data/admins.csv (colonnes : id;prenom;nom;login;region;is_superadmin;pwd_hash;pwd_expires_at)
+#
+# - Fonctions à utiliser :
+#     init_storage()        -> crée data/ + les fichiers CSV avec l'entête si besoin
+#     load_users()          -> list[dict] d'utilisateurs depuis users.csv
+#     save_users(users)     -> réécrit users.csv à partir de la list[dict]
+#     load_admins()         -> list[dict] d'admins depuis admins.csv
+#     save_admins(admins)   -> réécrit admins.csv à partir de la list[dict]
+#
+# - Vous travaillez TOUJOURS sur des listes de dictionnaires en mémoire
+#   (users_list / admins_list) fournies par main.py.
+#
+# - C'est main.py qui appelle save_users(...) / save_admins(...)
+#   après vos opérations de création / modification / suppression.
+
