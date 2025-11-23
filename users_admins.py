@@ -1,5 +1,5 @@
 import storage
-import auth
+import auth_pwd
 
 FILE_ADMINS = "data/admins.csv"
 FILE_USERS = "data/users.csv"
@@ -64,8 +64,8 @@ def ajouter_personne(current_user, type_cible="users"):
         print(f"📍 Création automatique sur votre site de gestion : {site}")
 
     login = generer_login(nom, prenom)
-    pwd_clair = auth.generer_mot_de_passe_aleatoire()
-    pwd_hash = auth.hasher_mdp(pwd_clair)
+    pwd_clair = auth_pwd.generer_mot_de_passe_aleatoire()
+    pwd_hash = auth_pwd.hasher_mdp(pwd_clair)
     
     # Gestion ID
     fichier = FILE_USERS if type_cible == "users" else FILE_ADMINS
