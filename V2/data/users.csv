@@ -1,0 +1,5 @@
+id,login,password_hash,nom,prenom,role,site
+1,adurat,5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8,Durat,Alain,USER,Marseille
+2,blegrand,5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8,Legrand,Bruno,USER,Rennes
+3,rnait,8858d9c298befce908c5c8563636f36d9d7a417a2110667af9f5077b326483d3,nait,riman,USER,Marseille
+4,yelmimouni,fca1fab6fe597416ece8bdd6df7b509134eb9da437dc7c614a0a2a1333720028,elmimouni,youssef,USER,Paris
