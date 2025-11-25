@@ -104,12 +104,6 @@ def verifier_droit_zone(current_user, cible_site):
 
 # --- PARTIE 3 : CRUD METIER ---
 
-FILE_USERS = "data/users.csv"
-FILE_ADMINS = "data/admins.csv"
-CHAMPS_USERS = ['id', 'login', 'password_hash', 'nom', 'prenom', 'role', 'site']
-CHAMPS_ADMINS = ['id', 'login', 'password_hash', 'nom', 'prenom', 'role', 'site']
-
-# Charger CSV
 def charger_csv(fichier):
     data = []
     try:
@@ -209,7 +203,7 @@ def ajouter_personne(current_user, type_cible="users", generer_login=None, gener
     
     nouvelle = {'id': new_id, 'login': login, 'password_hash': pwd_hash, 'nom': nom, 'prenom': prenom, 'role': role, 'site': site}
     
-    ajouter_ligne_csv(fichier, nouvelle, champs)
+    ajouter_ligne_csv(fichier, nouvelle, champs) ### Cette fonction permet d'ajouter le nouvelle utilisateur dans le fichier .csv
     print("OK ! Login: " + login + " / Mdp: " + pwd)
 
 # Modifier personne
