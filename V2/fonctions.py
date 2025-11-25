@@ -104,109 +104,190 @@ def verifier_droit_zone(current_user, cible_site):
 
 # --- PARTIE 3 : CRUD METIER ---
 
+FILE_USERS = "data/users.csv"
+FILE_ADMINS = "data/admins.csv"
+CHAMPS_USERS = ['id', 'login', 'password_hash', 'nom', 'prenom', 'role', 'site']
+CHAMPS_ADMINS = ['id', 'login', 'password_hash', 'nom', 'prenom', 'role', 'site']
+
+# Charger CSV
+def charger_csv(fichier):
+    data = []
+    try:
+        f = open(fichier, 'r') ### Cela permet d'ouvrir le fichier en mode lecture 
+        reader = csv.DictReader(f)
+        for ligne in reader:
+            data.append(ligne)
+        f.close()
+    except:
+        pass
+    return data
+
+def sauvegarder_csv(fichier, data, champs):
+    f = open(fichier, 'w', newline='') ### Cette fonction permet d'ouvrir le fichier en mode ecriture
+    writer = csv.DictWriter(f, fieldnames=champs)
+    writer.writeheader()
+    i = 0
+    while i < len(data):
+        writer.writerow(data[i])
+        i = i + 1
+    f.close()
+
+def ajouter_ligne_csv(fichier, ligne, champs):
+    f = open(fichier, 'a', newline='')
+    writer = csv.DictWriter(f, fieldnames=champs)
+    writer.writerow(ligne)
+    f.close()
+
+def verifier_droit_zone(user, site):
+    if user['role'] == 'SUPER_ADMIN':
+        return True
+    if user['site'] == site:
+        return True
+    return False ### cette fonction permet d'autoriser les droits aux user et d'acceder uniquement a sont site 
+
 def lister_personnel(current_user, type_cible="users"):
-    fichier = FILE_USERS if type_cible == "users" else FILE_ADMINS
+    if type_cible == "users":
+        fichier = FILE_USERS
+        label = "UTILISATEURS"
+    else:
+        fichier = FILE_ADMINS
+        label = "ADMINISTRATEURS"
+    
     data = charger_csv(fichier)
     
-    label = "UTILISATEURS" if type_cible == "users" else "ADMINISTRATEURS"
-    print(f"\n--- LISTE DES {label} ({current_user['site'] if current_user['role'] != 'SUPER_ADMIN' else 'Global'}) ---")
-    print(f"{'ID':<5} {'Login':<15} {'Nom':<15} {'Prénom':<15} {'Site':<10}")
-    print("-" * 60)
-
+    if current_user['role'] != 'SUPER_ADMIN':
+        zone = current_user['site']
+    else:
+        zone = 'Global'
+    
+    print("\n LISTE DES " + label + " (" + zone + ") ---")
+    print("ID  Login  /  Nom   /  Prenom  / Site")
+    
     count = 0
     for p in data:
-        if verifier_droit_zone(current_user, p['site']):
-            print(f"{p['id']:<5} {p['login']:<15} {p['nom']:<15} {p['prenom']:<15} {p['site']:<10}")
-            count += 1
-    if count == 0: print(f"Aucun {type_cible[:-1]} trouvé dans votre zone.")
-
-def ajouter_personne(current_user, type_cible="users"):
-    if current_user['role'] == 'USER': return
-
-    print(f"\n--- AJOUTER UN {type_cible[:-1].upper()} ---")
-    nom = input("Nom : ").strip()
-    prenom = input("Prénom : ").strip()
+        if verifier_droit_zone(current_user, p['site']) == True:
+            print(p['id'] + "     " + p['login'] + "     " + p['nom'] + "     " + p['prenom'] + "     " + p['site'])
+            count = count + 1
     
-    # Site forcé pour admin régional
+    if count == 0:
+        print("Aucun resultat.")
+
+def ajouter_personne(current_user, type_cible="users", generer_login=None, generer_mot_de_passe_aleatoire=None, hasher_mdp=None):
+    if current_user['role'] == 'USER':
+        return ### Cette fonction permet que USER ne peut rien creer ni ajouter une personne 
+    
+    print("\n AJOUTER UN NOUVEL UTILISATEUR")
+    nom = input("Nom : ")
+    prenom = input("Prenom : ") ### Cette fonction permet d'ajouter une personne en remplissant les champs nom et prenom
+    
     if current_user['role'] == 'SUPER_ADMIN':
-        site = input("Site (Paris, Marseille, Rennes, Grenoble) : ").strip()
+        site = input("Site (Paris/Marseille/Rennes/Grenoble) : ") ### Cette ligne permet que uniquement et seulement le Super Admin peut choisir le site pour le USER
     else:
         site = current_user['site']
-        print(f"📍 Site forcé : {site}")
-
+        print("Site : " + site)
+    
     login = generer_login(nom, prenom)
-    pwd_clair = generer_mot_de_passe_aleatoire()
-    pwd_hash = hasher_mdp(pwd_clair)
+    pwd = generer_mot_de_passe_aleatoire()
+    pwd_hash = hasher_mdp(pwd)
     
-    fichier = FILE_USERS if type_cible == "users" else FILE_ADMINS
-    champs = CHAMPS_USERS if type_cible == "users" else CHAMPS_ADMINS
+    if type_cible == "users":
+        fichier = FILE_USERS
+        champs = CHAMPS_USERS
+    else:
+        fichier = FILE_ADMINS
+        champs = CHAMPS_ADMINS
+    
     data = charger_csv(fichier)
-    new_id = len(data) + 1 
-
-    role_assigne = 'USER'
-    if type_cible == 'admins':
-        role_assigne = 'SUPER_ADMIN' if site == 'Paris' and current_user['role'] == 'SUPER_ADMIN' else 'ADMIN'
-
-    nouvelle_personne = {
-        'id': new_id, 'login': login, 'password_hash': pwd_hash,
-        'nom': nom, 'prenom': prenom, 'role': role_assigne, 'site': site
-    }
-
-    ajouter_ligne_csv(fichier, nouvelle_personne, champs)
-    print(f"✅ Créé ! Login: {login} | Mdp: {pwd_clair}")
-
-def modifier_personne(current_user, type_cible="users"):
-    if current_user['role'] == 'USER': return
-    lister_personnel(current_user, type_cible)
-    id_modif = input("\nID à modifier : ").strip()
+    new_id = len(data) + 1
     
-    fichier = FILE_USERS if type_cible == "users" else FILE_ADMINS
-    champs = CHAMPS_USERS if type_cible == "users" else CHAMPS_ADMINS
+    role = 'USER'
+    if type_cible == 'admins':
+        if site == 'Paris' and current_user['role'] == 'SUPER_ADMIN':
+            role = 'SUPER_ADMIN'
+        else:
+            role = 'ADMIN'
+    
+    nouvelle = {'id': new_id, 'login': login, 'password_hash': pwd_hash, 'nom': nom, 'prenom': prenom, 'role': role, 'site': site}
+    
+    ajouter_ligne_csv(fichier, nouvelle, champs)
+    print("OK ! Login: " + login + " / Mdp: " + pwd)
+
+# Modifier personne
+def modifier_personne(current_user, type_cible="users"):
+    if current_user['role'] == 'USER':
+        return
+    
+    lister_personnel(current_user, type_cible)
+    id_modif = input("\nID : ")
+    
+    if type_cible == "users":
+        fichier = FILE_USERS
+        champs = CHAMPS_USERS
+    else:
+        fichier = FILE_ADMINS
+        champs = CHAMPS_ADMINS
+    
     data = charger_csv(fichier)
     
     trouve = False
     for p in data:
-        if str(p['id']) == id_modif:
+        if p['id'] == id_modif:
             if not verifier_droit_zone(current_user, p['site']):
-                print("⛔ Hors zone."); return
+                print("Pas le droit.")
+                return
             
-            # Protection Super Admin
             if p['role'] == 'SUPER_ADMIN' and current_user['role'] != 'SUPER_ADMIN':
-                print("⛔ Impossible de modifier le Super Admin."); return
-
-            nouveau_nom = input(f"Nouveau nom ({p['nom']}) : ").strip()
-            if nouveau_nom: p['nom'] = nouveau_nom
-            trouve = True; break
+                print("Super Admin intouchable.")
+                return
+            
+            nouveau = input("Nouveau nom : ")
+            if nouveau != "":
+                p['nom'] = nouveau
+            trouve = True
+            break
     
-    if trouve:
+    if trouve == True:
         sauvegarder_csv(fichier, data, champs)
-        print("✅ Modifié.")
+        print("Modifie.")
     else:
-        print("❌ Non trouvé.")
+        print("Pas trouve.")
 
+# Supprimer personne
 def supprimer_personne(current_user, type_cible="users"):
-    if current_user['role'] == 'USER': return
-    lister_personnel(current_user, type_cible)
-    id_suppr = input("\nID à supprimer : ").strip()
+    if current_user['role'] == 'USER':
+        return
     
-    fichier = FILE_USERS if type_cible == "users" else FILE_ADMINS
-    champs = CHAMPS_USERS if type_cible == "users" else CHAMPS_ADMINS
+    lister_personnel(current_user, type_cible)
+    id_sup = input("\nID : ")
+    
+    if type_cible == "users":
+        fichier = FILE_USERS
+        champs = CHAMPS_USERS
+    else:
+        fichier = FILE_ADMINS
+        champs = CHAMPS_ADMINS
+    
     data = charger_csv(fichier)
     nouvelle_liste = []
-    
     supprime = False
+    
     for p in data:
-        if str(p['id']) == id_suppr:
-            if verifier_droit_zone(current_user, p['site']):
+        if p['id'] == id_sup:
+            if verifier_droit_zone(current_user, p['site']) == True:
                 if p['login'] == current_user['login']:
-                    print("⛔ Suicide interdit."); nouvelle_liste.append(p)
+                    print("Tu peux pas te supprimer toi-meme.")
+                    nouvelle_liste.append(p)
                 elif p['role'] == 'SUPER_ADMIN' and current_user['role'] != 'SUPER_ADMIN':
-                    print("⛔ Super Admin intouchable."); nouvelle_liste.append(p)
+                    print("Super Admin intouchable.")
+                    nouvelle_liste.append(p)
                 else:
-                    print(f"🗑 Supprimé : {p['login']}"); supprime = True
+                    print("Supprime : " + p['login'])
+                    supprime = True
             else:
-                print("⛔ Hors zone."); nouvelle_liste.append(p)
+                print("Pas le droit.")
+                nouvelle_liste.append(p)
         else:
             nouvelle_liste.append(p)
-
-    if supprime: sauvegarder_csv(fichier, nouvelle_liste, champs)
+    
+    if supprime == True:
+        sauvegarder_csv(fichier, nouvelle_liste, champs)
