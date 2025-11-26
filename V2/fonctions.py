@@ -62,12 +62,33 @@ def ajouter_ligne_csv(chemin_fichier, ligne_dict, fieldnames):
 
 # --- PARTIE 2 : SÉCURITÉ & AUTH ---
 
-def hasher_mdp(password):
-    return hashlib.sha256(password.encode()).hexdigest()
+# def hasher_mdp(password):
+#     return hashlib.sha256(password.encode()).hexdigest()
 
-def generer_mot_de_passe_aleatoire(longueur=12):
-    chars = string.ascii_letters + string.digits + string.punctuation
-    return ''.join(random.choice(chars) for _ in range(longueur))
+# def generer_mot_de_passe_aleatoire(longueur=12):
+#     chars = string.ascii_letters + string.digits + string.punctuation
+#     return ''.join(random.choice(chars) for _ in range(longueur))
+
+liste_de_caracteres=string.ascii_letters+string.digits+string.punctuation
+### initialisation du pwd à générer aléatoirement
+def generer_mot_de_passe_aleatoire(passwd):
+    passwd=""
+    for i in range(12): ### de taille 12 en dur ou bien saisir la size
+        ###print("Saisir la Taille du PWD :")
+        ''' size=int(input())'''
+        #passwd=passwd+liste_de_caracteres[random.randint(0,len(liste_de_caracteres)-1)]
+        
+        #### en version raccourci
+        passwd+=liste_de_caracteres[random.randint(0,len(liste_de_caracteres)-1)]
+    print("Le mot de passe généré (à transmettre):", passwd)
+    return passwd   
+####Hashage en sha256 du mot de passe généré aléatoirement
+
+def hasher_mdp(password):
+    mot_de_passe_hashé = hashlib.sha256(password.encode()).hexdigest()
+    print("\n mot de pass hashé: " , mot_de_passe_hashé)
+    return mot_de_passe_hashé
+
 
 def generer_login(nom, prenom):
     if not nom or not prenom: return "inconnu"
