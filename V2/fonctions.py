@@ -226,12 +226,12 @@ def modifier_personne(current_user, type_cible="users"):
     trouve = False
     for p in data:
         if p['id'] == id_modif:
-            if not verifier_droit_zone(current_user, p['site']):
-                print("Pas le droit.")
+            if not verifier_droit_zone(current_user, p['site']): ### Cette action permet de verifier si la personne a les droits pour modifier
+                print("Vous n'avez pas les droits necessaire .")
                 return
             
-            if p['role'] == 'SUPER_ADMIN' and current_user['role'] != 'SUPER_ADMIN':
-                print("Super Admin intouchable.")
+            if p['role'] == 'SUPER_ADMIN' and current_user['role'] != 'SUPER_ADMIN': ### Il est impossible de modifier Super Admin sans etre un Super Admin> 
+                print(" Il pas possible de toucher au Super Admin.")
                 return
             
             nouveau = input("Nouveau nom : ")
@@ -241,15 +241,14 @@ def modifier_personne(current_user, type_cible="users"):
             break
     
     if trouve == True:
-        sauvegarder_csv(fichier, data, champs)
+        sauvegarder_csv(fichier, data, champs) ### Si le nom a ete modifier il reecrit le fichier complet avec la modification
         print("Modifie.")
     else:
         print("Pas trouve.")
 
-# Supprimer personne
 def supprimer_personne(current_user, type_cible="users"):
     if current_user['role'] == 'USER':
-        return
+        return ### Si un USER essaye de supprimer un users il ne pourra pas car il n'est pas super admin ou admin
     
     lister_personnel(current_user, type_cible)
     id_sup = input("\nID : ")
@@ -269,10 +268,10 @@ def supprimer_personne(current_user, type_cible="users"):
         if p['id'] == id_sup:
             if verifier_droit_zone(current_user, p['site']) == True:
                 if p['login'] == current_user['login']:
-                    print("Tu peux pas te supprimer toi-meme.")
+                    print("No Suicide Please.")
                     nouvelle_liste.append(p)
                 elif p['role'] == 'SUPER_ADMIN' and current_user['role'] != 'SUPER_ADMIN':
-                    print("Super Admin intouchable.")
+                    print("Pas touche au Super Admin !!! .")
                     nouvelle_liste.append(p)
                 else:
                     print("Supprime : " + p['login'])
