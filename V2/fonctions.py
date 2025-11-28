@@ -268,19 +268,19 @@ def supprimer_personne(current_user, type_cible="users"):
         if p['id'] == id_sup:
             if verifier_droit_zone(current_user, p['site']) == True:
                 if p['login'] == current_user['login']:
-                    print("No Suicide Please.")
+                    print("No Suicide Please !!! .")
                     nouvelle_liste.append(p)
                 elif p['role'] == 'SUPER_ADMIN' and current_user['role'] != 'SUPER_ADMIN':
-                    print("Pas touche au Super Admin !!! .")
+                    print("Ta pas le droit toucher !!!  .")
                     nouvelle_liste.append(p)
                 else:
                     print("Supprime : " + p['login'])
-                    supprime = True
+                    supprime = True 
             else:
-                print("Pas le droit.")
+                print("Vous n'avez pas les droits necessaire !!! .")
                 nouvelle_liste.append(p)
         else:
             nouvelle_liste.append(p)
     
     if supprime == True:
-        sauvegarder_csv(fichier, nouvelle_liste, champs)
+        sauvegarder_csv(fichier, nouvelle_liste, champs) ### On peut reecrire le fichier sans la personne supprimer
