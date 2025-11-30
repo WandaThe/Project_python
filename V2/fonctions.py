@@ -71,7 +71,7 @@ def ajouter_ligne_csv(chemin_fichier, ligne_dict, fieldnames):
 
 liste_de_caracteres=string.ascii_letters+string.digits+string.punctuation
 ### initialisation du pwd à générer aléatoirement
-def generer_mot_de_passe_aleatoire(passwd):
+def generer_mot_de_passe_aleatoire():
     passwd=""
     for i in range(12): ### de taille 12 en dur ou bien saisir la size
         ###print("Saisir la Taille du PWD :")
@@ -118,10 +118,19 @@ def login_systeme():
     return None
 
 def verifier_droit_zone(current_user, cible_site):
-    """Vrai si l'admin a le droit sur ce site."""
-    if current_user['role'] == 'SUPER_ADMIN': return True
-    if current_user['site'] == cible_site: return True
-    return False
+    # 1. On simplifie la lecture en mettant les valeurs dans des variables
+    mon_role = current_user['role']
+    mon_site = current_user['site']
+
+    # 2. On pose les conditions une par une
+    if mon_role == 'SUPER_ADMIN':
+        return True  # C'est le chef, on accepte tout de suite
+    
+    elif mon_site == cible_site:
+        return True  # C'est le bon site, on accepte
+        
+    else:
+        return False # Sinon, c'est refusé
 
 # --- PARTIE 3 : CRUD METIER ---
 
