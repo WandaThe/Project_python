@@ -114,7 +114,7 @@ def login_systeme():
             if user.get('role') is None: user['role'] = 'USER'
             return user
 
-    print("❌ Identifiants incorrects.")
+    print("Identifiants incorrects.")
     return None
 
 def verifier_droit_zone(current_user, cible_site):
