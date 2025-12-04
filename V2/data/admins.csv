@@ -1,0 +1,3 @@
+id,login,password_hash,nom,prenom,role,site
+1,coulmi,5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8,Oulmi,Celine,SUPER_ADMIN,Paris
+2,mdupont,5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8,Dupont,Marc,ADMIN,Marseille3,nelibrahimi,d6bdaab70e6ed11141365f78a0f09ff4a84c1005ce86ed54c49c4a544c55ff2b,elibrahimi,nassim,ADMIN,Marseille
