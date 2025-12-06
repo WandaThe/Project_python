@@ -258,11 +258,11 @@ def modifier_personne(current_user, type_cible="users"):
     for p in data:
         if p['id'] == id_modif:
             if not verifier_droit_zone(current_user, p['site']): ### Cette action permet de verifier si la personne a les droits pour modifier
-                print("Vous n'avez pas les droits necessaire .")
+                print("Tu as pas les droits necessaire !!! .")
                 return
             
             if p['role'] == 'SUPER_ADMIN' and current_user['role'] != 'SUPER_ADMIN': ### Il est impossible de modifier Super Admin sans etre un Super Admin> 
-                print(" Il pas possible de toucher au Super Admin.")
+                print(" Tu peus pas toucher au Super Admin !!! .")
                 return
             
             nouveau = input("Nouveau nom : ")
@@ -299,7 +299,7 @@ def supprimer_personne(current_user, type_cible="users"):
         if p['id'] == id_sup:
             if verifier_droit_zone(current_user, p['site']) == True:
                 if p['login'] == current_user['login']:
-                    print("No Suicide Please !!! .")
+                    print("Tu peu pas te supprimer toi meme !!!  .")
                     nouvelle_liste.append(p)
                 elif p['role'] == 'SUPER_ADMIN' and current_user['role'] != 'SUPER_ADMIN':
                     print("Ta pas le droit toucher !!!  .")
