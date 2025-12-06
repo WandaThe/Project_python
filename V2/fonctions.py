@@ -4,7 +4,6 @@ import hashlib
 import random
 import string
 import platform
-import time
 
 # --- CONSTANTES ---
 FILE_ADMINS = "data/admins.csv"
@@ -60,7 +59,7 @@ def ajouter_ligne_csv(chemin_fichier, ligne_dict, fieldnames):
     except Exception as e:
         print(f"Erreur ajout {chemin_fichier}: {e}")
 
-# --- PARTIE 2 : SÉCURITÉ & AUTH ---
+# --- PARTIE 2 : SÉCURITÉ & AUTHENTIFICATION ---
 
 # def hasher_mdp(password):
 #     return hashlib.sha256(password.encode()).hexdigest()
@@ -86,48 +85,50 @@ def generer_mot_de_passe_aleatoire():
 
 def hasher_mdp(password):
     mot_de_passe_hashé = hashlib.sha256(password.encode()).hexdigest()
-    print("\n mot de pass hashé: " , mot_de_passe_hashé)
+    print("\n mot de pass hashé: " , mot_de_passe_hashé) 
     return mot_de_passe_hashé
 
 
 def generer_login(nom, prenom):
-    if not nom or not prenom: return "inconnu"
-    return f"{prenom[0].lower()}{nom.lower().replace(' ', '')}"
+    if not nom or not prenom: return "inconnu"  # Si l'un des deux champs sont vides le login sera inconnu
+    return f"{prenom[0].lower()}{nom.lower().replace(' ', '')}" 
+### Cette fonction permet de generer le login en prenant la premiere lettre du prenom en minuscule et le nom en minuscule aussi en supprimant les espaces
+### Exemple : Nom: Dupond Prenom: Jean => Login: jdupond
 
 def login_systeme():
     """Gère la connexion et renvoie la session utilisateur."""
     print("=== AUTHENTIFICATION AMERICAN HOSPITAL ===")
-    user_login = input("Login : ").strip()
-    user_pwd = input("Mot de passe : ").strip()
-    pwd_hash = hasher_mdp(user_pwd)
+    user_login = input("Login : ").strip() ### saisi du login de l'utilisateur | le .strip() permet de supprimer les espaces avant et apres le login
+    user_pwd = input("Mot de passe : ").strip() ### saisi du mot de passe de l'utilisateur
+    pwd_hash = hasher_mdp(user_pwd) ### Cette ligne permet de hasher le mot de passe saisi par l'utilisateur
 
-    # 1. Check Admins
-    admins = charger_csv(FILE_ADMINS)
+    # 1. verfication administrateur
+    admins = charger_csv(FILE_ADMINS) ### Cette fonction permet de charger le fichier admin.csv
     for admin in admins:
         if admin['login'] == user_login and admin['password_hash'] == pwd_hash:
-            return admin
+            return admin ### Si les identifiants match bien avec le fihcier il retourne l'admin connecté sinon il passe a l'etape suivante
     
     # 2. Check Users
-    users = charger_csv(FILE_USERS)
+    users = charger_csv(FILE_USERS) ### Cette fonction permet de charger le fichier users.csv
     for user in users:
         if user['login'] == user_login and user['password_hash'] == pwd_hash:
-            if user.get('role') is None: user['role'] = 'USER'
-            return user
+            if user.get('role') is None: user['role'] = 'USER' ### Cette ligne vérifie si le role de l'utilisateur est vide si oui alors il le remplit par defaut avec USER
+            return user ### Si les identifiants match bien avec le fihcier il retourne l'user connecté sinon il passe a l'etape suivante
 
     print("Identifiants incorrects.")
-    return None
+    return None ### Si les identifiants ne match ni avec le fichiers users ou admins alors il retourne None
 
 def verifier_droit_zone(current_user, cible_site):
-    # 1. On simplifie la lecture en mettant les valeurs dans des variables
-    mon_role = current_user['role']
-    mon_site = current_user['site']
+    ## 1. On recupere les infos de l'utilisateur actuel et on les met ds 2 variables
+    mon_role = current_user['role'] 
+    mon_site = current_user['site'] 
 
-    # 2. On pose les conditions une par une
+    ## 2. On verifie les droits
     if mon_role == 'SUPER_ADMIN':
-        return True  # C'est le chef, on accepte tout de suite
+        return True  ### C le patron on accepte tout de suite
     
-    elif mon_site == cible_site:
-        return True  # C'est le bon site, on accepte
+    elif mon_site == cible_site: 
+        return True  ### C le bon site on accepte
         
     else:
         return False # Sinon, c'est refusé
