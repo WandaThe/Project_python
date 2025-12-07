@@ -5,7 +5,7 @@ def menu_principal(user):
         f.effacer_ecran()
         role = user['role']
         print(f"=== AMERICAN HOSPITAL ===")
-        print(f"👤 {user['login']} | 🛡 {role} | 📍 {user['site']}")
+        print(f" {user['login']} | {role} | {user['site']}")
         print("-" * 30)
         
         print("1. [R] Lister Utilisateurs")
