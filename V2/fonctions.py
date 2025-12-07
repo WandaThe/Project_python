@@ -282,15 +282,24 @@ def modifier_personne(current_user, type_cible="users"):
                 print(" Tu peus pas toucher au Super Admin !!! .")
                 return
             
-            nouveau = input("Nouveau nom : ")
-            if nouveau != "":
-                p['nom'] = nouveau
+            nouveau_nom = input("Nouveau nom : ")
+            if nouveau_nom != "":
+                p['nom'] = nouveau_nom       
+
+            nouveau_prenom = input("Nouveau prenom : ")
+            if nouveau_prenom != "":
+                p['prenom'] = nouveau_prenom
+                p['login'] = generer_login(nouveau_nom, nouveau_prenom) ### Si le prenom est modifié alors le login est aussi modifié        
+            
+            nouveau_site = input("Nouveau site : ")
+            if nouveau_site != "":
+                p['site'] = nouveau_site
             trouve = True
-            break
     
+            break
     if trouve == True:
         sauvegarder_csv(fichier, data, champs) ### Si le nom a ete modifier il reecrit le fichier complet avec la modification
-        print("Modifie.")
+        print("Modifie avec succes : ")
     else:
         print("Pas trouve.")
 
