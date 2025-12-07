@@ -23,7 +23,6 @@ def effacer_ecran():
         os.system('clear') # Effacer l'écran sous Linux/Mac
 
 def pause():
-    """Pause jusqu'à appui sur Entrée."""
     input("\nAppuyez sur Entrée pour continuer...")
 
 def charger_csv(chemin_fichier):
@@ -33,8 +32,6 @@ def charger_csv(chemin_fichier):
     if not os.path.exists(chemin_fichier):
           # Si le fichier n'existe pas, on renvoie une liste vide
         return data
-    
-    
     try:
         with open(chemin_fichier, mode='r', encoding='utf-8', newline='') as f:
              # Ouverture du fichier en lecture texte
