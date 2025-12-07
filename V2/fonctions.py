@@ -12,7 +12,7 @@ FILE_USERS = "data/users.csv"       #Fichier des utilisateurs
 CHAMPS_ADMINS = ['id', 'login', 'password_hash', 'nom', 'prenom', 'role', 'site'] #noms de collones pour les admins
 CHAMPS_USERS = ['id', 'login', 'password_hash', 'nom', 'prenom', 'role', 'site'] #noms de collones pour les utilisateurs
 
-# --- PARTIE 1 : UTILITAIRES & STOCKAGE ---
+# --- PARTIE 1 : STOCKAGE ---
 
 def effacer_ecran():
     """Nettoie la console."""
@@ -150,7 +150,7 @@ def verifier_droit_zone(current_user, cible_site):
     else:
         return False # Sinon, c'est refusé
 
-# --- PARTIE 3 : CRUD METIER ---
+# --- PARTIE 3 : DROIT USER & ADMIN ---
 
 def charger_csv(fichier):
     data = []
