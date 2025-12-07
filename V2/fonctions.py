@@ -1,62 +1,82 @@
-import csv
-import os
-import hashlib
-import random
-import string
-import platform
+import csv              #On importe le module csv ( sert a lire et écire des files au format csv) (texte avec des valeurs séparées par des virgules)
+import os               #permet d'interagir avec l'os (vérifier si un fichier existe, effacer l'écran, etc.)
+import hashlib          #sert à "hacher" des mots de passe 
+import random           #sert à générer des valeurs aléatoires
+import string           #contient des constantes utiles pour les chaînes de caractères (alphabet, chiffres, etc.)
+import platform         # permet de connaître des infos sur le système (Windows, Linux, etc.)
+
 
 # --- CONSTANTES ---
-FILE_ADMINS = "data/admins.csv"
-FILE_USERS = "data/users.csv"
-CHAMPS_ADMINS = ['id', 'login', 'password_hash', 'nom', 'prenom', 'role', 'site']
-CHAMPS_USERS = ['id', 'login', 'password_hash', 'nom', 'prenom', 'role', 'site']
+FILE_ADMINS = "data/admins.csv"     #Fichier des administrateurs
+FILE_USERS = "data/users.csv"       #Fichier des utilisateurs
+CHAMPS_ADMINS = ['id', 'login', 'password_hash', 'nom', 'prenom', 'role', 'site'] #noms de collones pour les admins
+CHAMPS_USERS = ['id', 'login', 'password_hash', 'nom', 'prenom', 'role', 'site'] #noms de collones pour les utilisateurs
 
 # --- PARTIE 1 : UTILITAIRES & STOCKAGE ---
 
 def effacer_ecran():
     """Nettoie la console."""
+    # Choix de la commande selon le système
     if platform.system() == 'Windows':
-        os.system('cls')
+        os.system('cls') # Effacer l'écran sous Windows
     else:
-        os.system('clear')
+        os.system('clear') # Effacer l'écran sous Linux/Mac
 
 def pause():
+    """Pause jusqu'à appui sur Entrée."""
     input("\nAppuyez sur Entrée pour continuer...")
 
 def charger_csv(chemin_fichier):
     """Lit un CSV et renvoie une liste de dicts."""
-    data = []
+    data = [] # Liste qui contiendra les lignes
+    
     if not os.path.exists(chemin_fichier):
+          # Si le fichier n'existe pas, on renvoie une liste vide
         return data
+    
+    
     try:
         with open(chemin_fichier, mode='r', encoding='utf-8', newline='') as f:
-            reader = csv.DictReader(f)
+             # Ouverture du fichier en lecture texte
+             
+            reader = csv.DictReader(f) # Chaque ligne = dict (colonne: valeur)
             for row in reader:
-                data.append(row)
+                data.append(row)       # Ajout de la ligne dans la liste
+                
     except Exception as e:
+        # Affiche l'erreur en cas de problème
         print(f"Erreur lecture {chemin_fichier}: {e}")
-    return data
+        
+    return data # Renvoie toutes les lignes lues
 
 def sauvegarder_csv(chemin_fichier, data, fieldnames):
     """Écrase le CSV avec les nouvelles données."""
     try:
         with open(chemin_fichier, mode='w', encoding='utf-8', newline='') as f:
+             # Ouverture en écriture (écrase le fichier)
             writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(data)
+            writer.writeheader() # Écrit la ligne d'en-tête (colonnes)
+            writer.writerows(data) # Écrit toutes les lignes (liste de dicts)
+            
     except Exception as e:
+        # Affiche l'erreur en cas de problème
         print(f"Erreur écriture {chemin_fichier}: {e}")
 
 def ajouter_ligne_csv(chemin_fichier, ligne_dict, fieldnames):
     """Ajoute une ligne à la fin du CSV."""
-    file_exists = os.path.exists(chemin_fichier)
+    file_exists = os.path.exists(chemin_fichier) # Le fichier existe déjà ?
     try:
         with open(chemin_fichier, mode='a', encoding='utf-8', newline='') as f:
+            # Ouverture en ajout (append)
             writer = csv.DictWriter(f, fieldnames=fieldnames)
+            
             if not file_exists:
+                # Si le fichier est nouveau, on ajoute l'en-tête
                 writer.writeheader()
-            writer.writerow(ligne_dict)
+                
+            writer.writerow(ligne_dict) # Ajoute une seule ligne (un dict)
     except Exception as e:
+         # Affiche l'erreur en cas de problème
         print(f"Erreur ajout {chemin_fichier}: {e}")
 
 # --- PARTIE 2 : SÉCURITÉ & AUTHENTIFICATION ---
