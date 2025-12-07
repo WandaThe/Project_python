@@ -214,9 +214,9 @@ def lister_personnel(current_user, type_cible="users"):
     if count == 0:
         print("Aucun resultat.")
 
-def ajouter_personne(current_user, type_cible="users", generer_login=None, generer_mot_de_passe_aleatoire=None, hasher_mdp=None):
+def ajouter_personne(current_user,type_cible="users"): ### Cette fonction permet d'ajouter un utilisateur sauf si la personne est a le role USER elle ne peut pas creer un autre utilisateur.
     if current_user['role'] == 'USER':
-        return ### Cette fonction permet que USER ne peut rien creer ni ajouter une personne 
+        return 
     
     print("\n AJOUTER UN NOUVEL UTILISATEUR")
     nom = input("Nom : ")
